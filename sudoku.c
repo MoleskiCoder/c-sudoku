@@ -32,34 +32,7 @@ int puzzle[CELL_COUNT] = {
 };
 
 
-// Rather than compare against zero, make the code more meaningful to readers.
-
-bool is_assigned(int number) {
-	return number != UNASSIGNED;
-}
-
-bool is_unassigned(int number) {
-	return number == UNASSIGNED;
-}
-
-
-// Puzzle access methods
-
-int grid_peek(int n) {
-	return puzzle[n];
-}
-
-void grid_poke(int number, int n) {
-	puzzle[n] = number;
-}
-
-
 // Move and grid position translation methods
-
-struct coord
-{
-	int x, y;
-};
 
 int move2x(int n) {
 	return n % BOARD_SIZE;
@@ -67,13 +40,6 @@ int move2x(int n) {
 
 int move2y(int n) {
 	return n / BOARD_SIZE;
-}
-
-struct coord move2xy(int n) {
-	struct coord xy;
-	xy.x = move2x(n);
-	xy.y = move2y(n);
-	return xy;
 }
 
 int xy2move(int x, int y) {
@@ -96,9 +62,13 @@ int box_side_start(int n) {
 }
 
 int move2box_start(int n) {
-	struct coord xy = move2xy(n);
-	int xbox = box_side_start(xy.x);
-	int ybox = box_side_start(xy.y);
+
+	int x = move2x(n);
+	int xbox = box_side_start(x);
+
+	int y = move2y(n);
+	int ybox = box_side_start(y);
+
 	return xy2move(xbox, ybox);
 }
 
@@ -109,10 +79,9 @@ int move2box_start(int n) {
 // in the specified row matches the given number.
 
 bool is_used_in_row(int number, int n) {
-	int row_start = move2row_start(n);
-	int offset = row_start;
+	int offset = move2row_start(n);
 	for (int i = 0; i < BOARD_SIZE; ++i) {
-		if (grid_peek(offset++) == number) {
+		if (puzzle[offset++] == number) {
 			return true;
 		}
 	}
@@ -126,10 +95,9 @@ bool is_used_in_row(int number, int n) {
 // in the specified column matches the given number.
 
 bool is_used_in_column(int number, int n) {
-	int column_start = move2column_start(n);
-	int offset = column_start;
+	int offset = move2column_start(n);
 	for (int i = 0; i < BOARD_SIZE; ++i) {
-		if (grid_peek(offset) == number) {
+		if (puzzle[offset] == number) {
 			return true;
 		}
 		offset += BOARD_SIZE;
@@ -149,7 +117,7 @@ bool is_used_in_box(int number, int n) {
 		int x_box = i % BOX_SIZE;
 		int y_box = i / BOX_SIZE;
 		int offset = xy2move(x_box, y_box) + box_start;
-		if (grid_peek(offset) == number) {
+		if (puzzle[offset] == number) {
 			return true;
 		}
 	}
@@ -189,19 +157,19 @@ bool solve(int n) {
 	if (n == CELL_COUNT)
 		return true;							// success!
 
-	if (is_assigned(grid_peek(n)))
+	if (puzzle[n] != UNASSIGNED)
 		return solve(n + 1);					//  if it's already assigned, skip
 
 	for (int i = 1; i <= BOARD_SIZE; ++i) {		// consider all digits
 		if (is_available(i, n)) {
-			grid_poke(i, n);					// make tentative assignment
+			puzzle[n] = i;						// make tentative assignment
 			if (solve(n + 1)) {
 				return true;					// recur, if success, yay!
 			}
 		}
 	}
 
-	grid_poke(UNASSIGNED, n);					// failure, unmake & try again
+	puzzle[n] = UNASSIGNED;						// failure, unmake & try again
 
 	return false;								// this triggers backtracking
 }
@@ -210,8 +178,8 @@ bool solve(int n) {
 // Board display
 
 void print_board_element(int n) {
-	int number = grid_peek(n);
-	if (is_assigned(number)) {
+	int number = puzzle[n];
+	if (number != UNASSIGNED) {
 		printf(" %d ", number);
 	} else {
 		printf(" - ");
