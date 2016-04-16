@@ -186,15 +186,15 @@ void print_board_element(int n) {
 	}
 }
 
-void print_box_break_vertical() {
+void print_box_break_vertical(void) {
 	printf("|");
 }
 
-void print_box_break_horizontal() {
+void print_box_break_horizontal(void) {
 	printf(" --------+---------+--------");
 }
 
-void print_board() {
+void print_board(void) {
 	for (int i = 0; i < CELL_COUNT; ++i) {
 		int x = move2x(i);
 		if (x == 0) {
@@ -217,7 +217,7 @@ void print_board() {
 }
 
 
-void game() {
+void game(void) {
 
 	clock_t start = clock();
 	bool solved = solve(0);
@@ -237,6 +237,6 @@ void game() {
 }
 
 
-int main() {
+int main(void) {
 	game();
 }
