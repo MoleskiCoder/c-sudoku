@@ -214,7 +214,7 @@ void print_board_element(int n) {
 	if (is_assigned(number)) {
 		printf(" %d ", number);
 	} else {
-		printf(" - ", number);
+		printf(" - ");
 	}
 }
 
